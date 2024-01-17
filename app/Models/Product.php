@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $price
  * @property User $seller
  * @property int $user_id
+ * @property int $category_id
  */
 class Product extends Model
 {
@@ -25,16 +26,23 @@ class Product extends Model
     public const PRICE = 'price';
 
     public const USER_ID = 'user_id';
+    public const CATEGORY_ID = 'category_id';
 
     protected $fillable = [
         self::NAME,
         self::DESCRIPTION,
         self::PRICE,
         self::USER_ID,
+        self::CATEGORY_ID,
     ];
 
     public function seller(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class, 'category_id');
     }
 }

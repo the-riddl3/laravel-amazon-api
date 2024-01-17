@@ -33,6 +33,7 @@ class ProductStoreRequest extends FormRequest
             Product::NAME => 'required|string|min:4|max:96',
             Product::DESCRIPTION => 'string|max:1024',
             Product::PRICE => 'required|int|min:1',
+            Product::CATEGORY_ID => 'required|exists:categories,id'
         ];
     }
 }
