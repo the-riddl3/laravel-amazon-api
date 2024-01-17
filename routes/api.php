@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Requests\ProductRequest;
 use App\Http\Requests\ProductStoreRequest;
@@ -36,15 +37,7 @@ Route::group(['middleware' => ['web']], function () {
             ->name('logout');
     });
 
-    Route::group(['prefix' => 'products'], function () {
-        Route::post('/', [ProductController::class, 'create'])->middleware(['auth:sanctum']);
-
-        Route::get('/', [ProductController::class, 'index']);
-
-        Route::get('/{product}', [ProductController::class, 'read']);
-
-        Route::put('/{product}', [ProductController::class, 'update'])->middleware(['auth:sanctum']);
-
-        Route::delete('/{product}', [ProductController::class, 'delete'])->middleware(['auth:sanctum']);
-    });
+    Route::apiResources([
+        'products' => ProductController::class,
+    ]);
 });
