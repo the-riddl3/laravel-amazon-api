@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\ProductController;
 use App\Http\Requests\ProductRequest;
 use App\Http\Requests\ProductStoreRequest;
 use App\Models\Product;
@@ -21,86 +23,28 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
-
 Route::group(['middleware' => ['web']], function () {
-    Route::post('/register', function (Request $request) {
-        $validated = $request->validate([
-            'name' => 'required',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:8'
-        ]);
+    Route::group(['prefix' => 'auth'], function() {
+        Route::get('/user', [AuthController::class, 'user'])->middleware('auth:sanctum');
 
-        $user = new User();
-        $user->name = $validated['name'];
-        $user->email = $validated['email'];
-        $user->password = Hash::make($validated['password']);
-        $user->save();
+        Route::post('/register', [AuthController::class, 'register'])->name('register');
 
-        Auth::login($user);
+        Route::post('/login', [AuthController::class, 'login'] )->name('login');
 
-        $request->session()->regenerate();
-
-        return response()->json(['user' => $user]);
-    })->name('register');
-
-    Route::post('/login', function (Request $request) {
-        $validated = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
-
-        if (!Auth::attempt($validated)) {
-            return response()->json(['message' => 'Wrong credentials']);
-        }
-
-        $request->session()->regenerate();
-
-        return response()->json(['user' => Auth::user()]);
-    })->name('login');
-
-    Route::post('/logout', function (Request $request) {
-        Auth::logout();
-        return response()->json(['message' => 'Logged out']);
-    })->name('logout')->middleware(['auth:sanctum']);
+        Route::post('/logout', [AuthController::class, 'logout'])
+            ->middleware(['auth:sanctum'])
+            ->name('logout');
+    });
 
     Route::group(['prefix' => 'products'], function () {
-        Route::post('/', function (ProductStoreRequest $request) {
-            $product = new Product($request->only(['name', 'description', 'price']));
-            $product->seller()->associate(Auth::user());
-            $product->save();
+        Route::post('/', [ProductController::class, 'create'])->middleware(['auth:sanctum']);
 
-            return response()->json([
-                'product' => $product,
-                'message' => 'Product created successfully',
-            ]);
-        })->middleware(['auth:sanctum']);
+        Route::get('/', [ProductController::class, 'index']);
 
-        Route::get('/', function () {
-            // recommendation system TODO
-            return Product::all();
-        });
+        Route::get('/{product}', [ProductController::class, 'read']);
 
-        Route::get('/{product}', function (ProductRequest $product) {
-            return $product;
-        });
+        Route::put('/{product}', [ProductController::class, 'update'])->middleware(['auth:sanctum']);
 
-        Route::put('/{product}', function (Product $product, ProductStoreRequest $request) {
-            Gate::authorize('store', $product);
-
-            $product->update($request->only(['name', 'description', 'price']));
-
-            return response()->json(['message' => 'product updated']);
-        })->middleware(['auth:sanctum']);
-
-        Route::delete('/{product}', function (Product $product, Request $request) {
-            Gate::authorize('store', $product);
-
-            $product->delete();
-
-            return response()->json(['message' => 'Product has been deleted']);
-        })->middleware(['auth:sanctum']);
+        Route::delete('/{product}', [ProductController::class, 'delete'])->middleware(['auth:sanctum']);
     });
 });
