@@ -41,10 +41,28 @@ class ProductTest extends TestCase
         ])->assertStatus(302);
     }
 
+    public function testIndex() {
+        $product = Product::factory()->createOne();
+
+        $this->get('/api/products')->assertJsonCount(1, 'products');
+    }
+
+    public function testIndexFiltered() {
+        $product = Product::factory()->createOne();
+
+        $this->call('GET', '/api/products', [
+            'filters' => [
+                Product::NAME => substr($product->name,2),
+                Product::PRICE => $product->price,
+            ]
+        ])->assertJsonCount(1, 'products');
+    }
+
     public function testReadProduct() {
         $product = Product::factory()->createOne();
 
-        $this->get("api/products/$product->id")->assertStatus(200);
+        $this->get("/api/products/$product->id")
+            ->assertStatus(200);
     }
 
     public function testUpdateProductAsOwner()

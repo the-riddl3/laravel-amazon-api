@@ -28,10 +28,21 @@ class ProductController extends Controller
         ]);
     }
 
-    public function index(): JsonResponse
+    public function index(ProductRequest $request): JsonResponse
     {
-        // recommendation system TODO
-        return response()->json(['products' => Product::all()]);
+        $filters = $request->getFilters();
+        if(!$filters) {
+            // recommendation system TODO
+            return response()->json(['products' => Product::all()]);
+        }
+
+        $query = Product::query();
+        foreach($filters as $field => $value) {
+            $query->where($field, 'LIKE', "%$value%");
+        }
+        $products = $query->get();
+
+        return response()->json(['products' => $products]);
     }
 
     public function show(Product $product): JsonResponse
@@ -54,4 +65,5 @@ class ProductController extends Controller
 
         return response()->json(['message' => 'Product has been deleted']);
     }
+
 }
