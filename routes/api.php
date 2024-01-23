@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProductPurchaseController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -17,12 +18,12 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::group(['middleware' => ['web']], function () {
-    Route::group(['prefix' => 'auth'], function() {
+    Route::group(['prefix' => 'auth'], function () {
         Route::get('/user', [AuthController::class, 'user'])->middleware('auth:sanctum');
 
         Route::post('/register', [AuthController::class, 'register'])->name('register');
 
-        Route::post('/login', [AuthController::class, 'login'] )->name('login');
+        Route::post('/login', [AuthController::class, 'login'])->name('login');
 
         Route::post('/logout', [AuthController::class, 'logout'])
             ->middleware(['auth:sanctum'])
@@ -33,4 +34,10 @@ Route::group(['middleware' => ['web']], function () {
         'products' => ProductController::class,
         'categories' => CategoryController::class,
     ]);
+
+    Route::group(['prefix' => 'product-purchases', 'middleware' => ['auth:sanctum']], function () {
+        Route::get('/{purchase}', [ProductPurchaseController::class, 'show'])
+            ->can('show', 'purchase');
+        Route::post('/', [ProductPurchaseController::class, 'store']);
+    });
 });

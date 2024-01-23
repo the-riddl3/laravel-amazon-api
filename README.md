@@ -3,5 +3,5 @@
 ### features:
 - authentication
 - products
-- ability to buy or sell products
+- ability to buy products
 - shipment services

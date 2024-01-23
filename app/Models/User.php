@@ -15,6 +15,7 @@ use Laravel\Sanctum\HasApiTokens;
  * @property string $email
  * @property string $password
  * @property UserRole $role
+ * @property ProductPurchase[] $purchases
  */
 class User extends Authenticatable
 {
@@ -57,5 +58,10 @@ class User extends Authenticatable
     public function products(): HasMany
     {
         return $this->hasMany(Product::class, 'seller_id');
+    }
+
+    public function purchases(): HasMany
+    {
+        return $this->hasMany(ProductPurchase::class, 'buyer_id');
     }
 }
