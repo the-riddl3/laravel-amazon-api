@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /***
  * @property int $id
@@ -12,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $buyer_id
  * @property Product $product
  * @property User $buyer
+ * @property ProductShipmentStatus[] $shipmentStatuses
  * @property int $quantity
  * @property int $created_at
  */
@@ -33,5 +35,10 @@ class ProductPurchase extends Model
     public function buyer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'buyer_id');
+    }
+
+    public function shipmentStatuses(): HasMany
+    {
+        return $this->hasMany(ProductShipmentStatus::class, 'purchase_id');
     }
 }

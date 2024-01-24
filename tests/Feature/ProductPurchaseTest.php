@@ -14,7 +14,7 @@ class ProductPurchaseTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function testCreatePurchase()
+    public function testStorePurchase()
     {
         $product = Product::factory()->create();
         $user = User::factory()->create();
@@ -29,7 +29,7 @@ class ProductPurchaseTest extends TestCase
         $this->assertDatabaseCount('product_purchases', 1);
     }
 
-    public function testCreatePurchaseUnauthenticated()
+    public function testStorePurchaseUnauthenticated()
     {
         $product = Product::factory()->create();
 

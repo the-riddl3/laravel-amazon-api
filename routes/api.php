@@ -4,6 +4,8 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductPurchaseController;
+use App\Http\Controllers\ProductShipmentStatusController;
+use App\Models\ProductShipmentStatus;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -35,9 +37,22 @@ Route::group(['middleware' => ['web']], function () {
         'categories' => CategoryController::class,
     ]);
 
-    Route::group(['prefix' => 'product-purchases', 'middleware' => ['auth:sanctum']], function () {
-        Route::get('/{purchase}', [ProductPurchaseController::class, 'show'])
-            ->can('show', 'purchase');
-        Route::post('/', [ProductPurchaseController::class, 'store']);
-    });
+    Route::middleware(['auth:sanctum'])
+        ->prefix('product-purchases')
+        ->group(function () {
+            Route::prefix('/{purchase}')->group(function () {
+                Route::get('/', [ProductPurchaseController::class, 'show'])
+                    ->can('show', 'purchase');
+
+                // shipping feature
+                Route::group(['prefix' => 'shipment-statuses'], function () {
+                    Route::get('/', [ProductShipmentStatusController::class, 'index'])
+                        ->can('index', [ProductShipmentStatus::class, 'purchase']);
+                    Route::post('/', [ProductShipmentStatusController::class, 'store'])
+                        ->can('store', [ProductShipmentStatus::class, 'purchase']);
+                });
+            });
+            Route::post('/', [ProductPurchaseController::class, 'store']);
+        });
+
 });

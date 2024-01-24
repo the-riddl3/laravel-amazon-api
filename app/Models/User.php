@@ -53,7 +53,11 @@ class User extends Authenticatable
         'role' => UserRole::class,
     ];
 
-    public const ROLE = 'role';
+    public const string ID = 'id';
+    public const string NAME = 'name';
+    public const string EMAIL = 'email';
+    public const string PASSWORD = 'password';
+    public const string ROLE = 'role';
 
     public function products(): HasMany
     {

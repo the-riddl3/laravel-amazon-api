@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-enum PurchaseState: int
+enum ShipmentState: int
 {
     case Unpaid = 0;
     case Paid = 1;
