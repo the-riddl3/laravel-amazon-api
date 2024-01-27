@@ -4,20 +4,17 @@ namespace App\Http\Resources;
 
 use App\Enums\ShipmentState;
 use App\Models\ProductPurchase;
-use App\Models\ProductShipment;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /***
  * @property int $id
- * @property int $shipment_id
- * @property ProductShipment $shipment
- * @property ShipmentState $state
- * @property string $message
- * @property Carbon $time
+ * @property int $purchase_id
+ * @property ProductPurchase $purchase
+ * @property ShipmentState $current_state
+ * @property string $current_message
  */
-class ProductShipmentStatusResource extends JsonResource
+class ProductShipmentResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -28,9 +25,9 @@ class ProductShipmentStatusResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'state' => $this->state->value,
-            'time' => $this->time->toString(),
-            'shipment' => new ProductShipmentResource($this->shipment),
+            'purchase' => new ProductPurchaseResource($this->purchase),
+            'current_state' => $this->current_state->value,
+            'current_message' => $this->current_message,
         ];
     }
 }

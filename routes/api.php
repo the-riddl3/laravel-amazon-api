@@ -1,10 +1,13 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\ProductController;
-use App\Http\Controllers\ProductPurchaseController;
-use App\Http\Controllers\ProductShipmentStatusController;
+use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\ProductPurchaseController;
+use App\Http\Controllers\Api\ProductShipmentController;
+use App\Http\Controllers\Api\ProductShipmentStatusController;
+use App\Http\Controllers\Api\UserAddressController;
+use App\Models\ProductShipment;
 use App\Models\ProductShipmentStatus;
 use Illuminate\Support\Facades\Route;
 
@@ -21,7 +24,14 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware' => ['web']], function () {
     Route::group(['prefix' => 'auth'], function () {
-        Route::get('/user', [AuthController::class, 'user'])->middleware('auth:sanctum');
+        Route::group(['prefix' => 'user'], function() {
+            Route::get('/', [AuthController::class, 'user'])->middleware('auth:sanctum');
+
+            // user addresses
+            Route::apiResources([
+                'addresses' => UserAddressController::class
+            ]);
+        });
 
         Route::post('/register', [AuthController::class, 'register'])->name('register');
 
@@ -45,11 +55,21 @@ Route::group(['middleware' => ['web']], function () {
                     ->can('show', 'purchase');
 
                 // shipping feature
-                Route::group(['prefix' => 'shipment-statuses'], function () {
-                    Route::get('/', [ProductShipmentStatusController::class, 'index'])
-                        ->can('index', [ProductShipmentStatus::class, 'purchase']);
-                    Route::post('/', [ProductShipmentStatusController::class, 'store'])
-                        ->can('store', [ProductShipmentStatus::class, 'purchase']);
+                Route::group(['prefix' => 'shipments'], function () {
+                    Route::get('/', [ProductShipmentController::class, 'index'])
+                        ->can('index', [ProductShipment::class, 'purchase']);
+                    Route::post('/', [ProductShipmentController::class, 'store'])
+                        ->can('store', [ProductShipment::class, 'purchase']);
+
+                    Route::group(['prefix' => '{shipment}'], function() {
+                        // shipment statuses
+                        Route::group(['prefix' => 'statuses'], function () {
+                            Route::get('/', [ProductShipmentStatusController::class, 'index'])
+                                ->can('index', [ProductShipmentStatus::class, 'purchase']);
+                            Route::post('/', [ProductShipmentStatusController::class, 'store'])
+                                ->can('store', [ProductShipmentStatus::class, 'purchase']);
+                        });
+                    });
                 });
             });
             Route::post('/', [ProductPurchaseController::class, 'store']);

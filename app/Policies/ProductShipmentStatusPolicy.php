@@ -13,7 +13,7 @@ class ProductShipmentStatusPolicy
         return $purchase->buyer_id === $user->id || in_array($user->role, [UserRole::Admin, UserRole::ShipmentDeliveryWorker]);
     }
 
-    public function store(User $user, ProductPurchase $purchase): bool
+    public function store(User $user): bool
     {
         return in_array($user->role, [UserRole::Admin, UserRole::ShipmentDeliveryWorker]);
     }

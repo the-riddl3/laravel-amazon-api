@@ -3,7 +3,7 @@
 namespace Database\Factories;
 
 use App\Enums\ShipmentState;
-use App\Models\ProductPurchase;
+use App\Models\ProductShipment;
 use App\Models\ProductShipmentStatus;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -20,9 +20,9 @@ class ProductShipmentStatusFactory extends Factory
     public function definition(): array
     {
         return [
-            'purchase_id' => ProductPurchase::factory()->create(),
-            'state' => ShipmentState::Unpaid,
-            'time' => now(),
+            ProductShipmentStatus::SHIPMENT_ID => ProductShipment::factory()->create(),
+            ProductShipmentStatus::STATE => ShipmentState::Unpaid,
+            ProductShipmentStatus::TIME => now(),
         ];
     }
 }

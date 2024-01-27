@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Enums\ShipmentState;
 use App\Models\Product;
 use App\Models\ProductPurchase;
+use App\Models\ProductShipment;
 use App\Models\ProductShipmentStatus;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -15,31 +16,14 @@ class ProductShipmentStatusTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function testStoringPurchaseStartsShipmentProcess()
-    {
-        $product = Product::factory()->create();
-        $user = User::factory()->create();
-
-        Sanctum::actingAs($user);
-
-        $this->post('/api/product-purchases', [
-            'product_id' => $product->id,
-            'quantity' => 2,
-        ])->assertStatus(201);
-
-        $this->assertDatabaseCount('product_purchases', 1);
-        $this->assertDatabaseHas('product_shipment_statuses', [
-            'state' => ShipmentState::Unpaid->value
-        ]);
-    }
-
     public function testStoreShipmentStatus()
     {
-        $purchase = ProductPurchase::factory()->create();
+        $shipment = ProductShipment::factory()->create();
+        $purchase = $shipment->purchase;
 
         Sanctum::actingAs(User::factory()->admin()->create());
 
-        $this->post("/api/product-purchases/$purchase->id/shipment-statuses", [
+        $this->post("/api/product-purchases/$purchase->id/shipments/$shipment->id/statuses", [
             'state' => ShipmentState::Delivered->value,
             'time' => now()->toString(),
         ])->assertStatus(201);
@@ -49,9 +33,10 @@ class ProductShipmentStatusTest extends TestCase
 
     public function testStoreShipmentUnauthenticated()
     {
-        $purchase = ProductPurchase::factory()->create();
+        $shipment = ProductShipment::factory()->create();
+        $purchase = $shipment->purchase;
 
-        $this->post("/api/product-purchases/$purchase->id/shipment-statuses", [
+        $this->post("/api/product-purchases/$purchase->id/shipments/$shipment->id/statuses", [
             'state' => ShipmentState::Delivered->value,
             'time' => now()->toString(),
         ])->assertStatus(302);
@@ -61,11 +46,12 @@ class ProductShipmentStatusTest extends TestCase
 
     public function testStoreShipmentUnauthorized()
     {
-        $purchase = ProductPurchase::factory()->create();
+        $shipment = ProductShipment::factory()->create();
+        $purchase = $shipment->purchase;
 
         Sanctum::actingAs($purchase->buyer);
 
-        $this->post("/api/product-purchases/$purchase->id/shipment-statuses", [
+        $this->post("/api/product-purchases/$purchase->id/shipments/$shipment->id/statuses", [
             'state' => ShipmentState::Delivered->value,
             'time' => now()->toString(),
         ])->assertStatus(403);
@@ -77,11 +63,12 @@ class ProductShipmentStatusTest extends TestCase
     {
         /** @var ProductShipmentStatus $shipmentStatus */
         $shipmentStatus = ProductShipmentStatus::factory()->create();
-        $purchase = $shipmentStatus->purchase;
+        $shipment = $shipmentStatus->shipment;
+        $purchase = $shipment->purchase;
 
         Sanctum::actingAs($purchase->buyer);
 
-        $this->get("/api/product-purchases/$purchase->id/shipment-statuses")
+        $this->get("/api/product-purchases/$purchase->id/shipments/$shipment->id/statuses")
             ->assertStatus(200)
             ->assertJsonFragment([
                 'state' => $shipmentStatus->state,
@@ -92,9 +79,10 @@ class ProductShipmentStatusTest extends TestCase
     {
         /** @var ProductShipmentStatus $shipmentStatus */
         $shipmentStatus = ProductShipmentStatus::factory()->create();
-        $purchase = $shipmentStatus->purchase;
+        $shipment = $shipmentStatus->shipment;
+        $purchase = $shipment->purchase;
 
-        $this->get("/api/product-purchases/$purchase->id/shipment-statuses")
+        $this->get("/api/product-purchases/$purchase->id/shipments/$shipment->id/statuses")
             ->assertStatus(302);
     }
 
@@ -102,11 +90,12 @@ class ProductShipmentStatusTest extends TestCase
     {
         /** @var ProductShipmentStatus $shipmentStatus */
         $shipmentStatus = ProductShipmentStatus::factory()->create();
-        $purchase = $shipmentStatus->purchase;
+        $shipment = $shipmentStatus->shipment;
+        $purchase = $shipment->purchase;
 
         Sanctum::actingAs(User::factory()->create());
 
-        $this->get("/api/product-purchases/$purchase->id/shipment-statuses")
+        $this->get("/api/product-purchases/$purchase->id/shipments/$shipment->id/statuses")
             ->assertStatus(403);
     }
 
@@ -114,11 +103,12 @@ class ProductShipmentStatusTest extends TestCase
     {
         /** @var ProductShipmentStatus $shipmentStatus */
         $shipmentStatus = ProductShipmentStatus::factory()->create();
-        $purchase = $shipmentStatus->purchase;
+        $shipment = $shipmentStatus->shipment;
+        $purchase = $shipment->purchase;
 
         Sanctum::actingAs(User::factory()->admin()->create());
 
-        $this->get("/api/product-purchases/$purchase->id/shipment-statuses")
+        $this->get("/api/product-purchases/$purchase->id/shipments/$shipment->id/statuses")
             ->assertStatus(200);
     }
 }

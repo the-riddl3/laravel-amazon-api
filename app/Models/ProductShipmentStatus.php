@@ -11,8 +11,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /***
  * @property int $id
- * @property int $purchase_id
- * @property ProductPurchase $purchase
+ * @property int $shipment_id
+ * @property ProductShipment $shipment
  * @property ShipmentState $state
  * @property string $message
  * @property Carbon $time
@@ -29,14 +29,14 @@ class ProductShipmentStatus extends Model
     public $timestamps = false;
     protected $guarded = [];
 
-    public const string PURCHASE_ID = 'purchase_id';
+    public const string SHIPMENT_ID = 'shipment_id';
     public const string STATE = 'state';
     public const string MESSAGE = 'message';
     public const string TIME = 'time';
 
 
-    public function purchase(): BelongsTo
+    public function shipment(): BelongsTo
     {
-        return $this->belongsTo(ProductPurchase::class, 'purchase_id');
+        return $this->belongsTo(ProductShipment::class, self::SHIPMENT_ID);
     }
 }

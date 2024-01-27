@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $buyer_id
  * @property Product $product
  * @property User $buyer
- * @property ProductShipmentStatus[] $shipmentStatuses
+ * @property ProductShipment[] $shipments
  * @property int $quantity
  * @property int $created_at
  */
@@ -27,6 +27,10 @@ class ProductPurchase extends Model
         'quantity',
     ];
 
+    public const string PRODUCT_ID = 'product_id';
+    public const string BUYER_ID = 'buyer_id';
+    public const string QUANTITY = 'quantity';
+
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
@@ -37,8 +41,8 @@ class ProductPurchase extends Model
         return $this->belongsTo(User::class, 'buyer_id');
     }
 
-    public function shipmentStatuses(): HasMany
+    public function shipments(): HasMany
     {
-        return $this->hasMany(ProductShipmentStatus::class, 'purchase_id');
+        return $this->hasMany(ProductShipment::class, 'purchase_id');
     }
 }

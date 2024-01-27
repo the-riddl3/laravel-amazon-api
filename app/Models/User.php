@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\UserRole;
+use App\Http\Resources\UserAddressResource;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -16,6 +17,7 @@ use Laravel\Sanctum\HasApiTokens;
  * @property string $password
  * @property UserRole $role
  * @property ProductPurchase[] $purchases
+ * @property UserAddress[] $addresses
  */
 class User extends Authenticatable
 {
@@ -67,5 +69,10 @@ class User extends Authenticatable
     public function purchases(): HasMany
     {
         return $this->hasMany(ProductPurchase::class, 'buyer_id');
+    }
+
+    public function addresses(): HasMany
+    {
+        return $this->hasMany(UserAddress::class);
     }
 }

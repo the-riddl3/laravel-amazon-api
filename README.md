@@ -4,4 +4,4 @@
 - authentication
 - products
 - ability to buy products
-- shipment services
+- shipment service
