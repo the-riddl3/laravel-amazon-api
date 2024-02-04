@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Console\Commands\DumpBrowsingHistoriesFromCacheToDbCommand;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -12,7 +13,9 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
+        // we want to persist all the browsing histories of users to the database, but we want to do it at a low activity time
+        // to not slow down the server, hence - midnight
+        $schedule->command(DumpBrowsingHistoriesFromCacheToDbCommand::class)->dailyAt('03:00');
     }
 
     /**

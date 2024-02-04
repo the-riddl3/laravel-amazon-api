@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\UserRole;
 use App\Http\Resources\UserAddressResource;
+use App\Services\BrowsingHistoryService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -16,6 +17,7 @@ use Laravel\Sanctum\HasApiTokens;
  * @property string $email
  * @property string $password
  * @property UserRole $role
+ * @property array $browsing_history
  * @property ProductPurchase[] $purchases
  * @property UserAddress[] $addresses
  */
@@ -55,11 +57,16 @@ class User extends Authenticatable
         'role' => UserRole::class,
     ];
 
+    protected $attributes = [
+        self::BROWSING_HISTORY => ['entries' => []],
+    ];
+
     public const string ID = 'id';
     public const string NAME = 'name';
     public const string EMAIL = 'email';
     public const string PASSWORD = 'password';
     public const string ROLE = 'role';
+    public const string BROWSING_HISTORY = 'browsing_history';
 
     public function products(): HasMany
     {
@@ -74,5 +81,9 @@ class User extends Authenticatable
     public function addresses(): HasMany
     {
         return $this->hasMany(UserAddress::class);
+    }
+
+    public function getBrowsingHistoryService(): BrowsingHistoryService {
+        return new BrowsingHistoryService($this);
     }
 }

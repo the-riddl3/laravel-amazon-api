@@ -7,7 +7,7 @@ use App\Models\UserAddress;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\UserAddress>
+ * @extends Factory<UserAddress>
  */
 class UserAddressFactory extends Factory
 {

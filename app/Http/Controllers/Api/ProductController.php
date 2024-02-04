@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Dtos\BrowsingHistoryEntryDto;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ProductRequest;
 use App\Http\Requests\ProductStoreRequest;
 use App\Models\Product;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -32,13 +34,13 @@ class ProductController extends Controller
     public function index(ProductRequest $request): JsonResponse
     {
         $filters = $request->getFilters();
-        if(!$filters) {
+        if (!$filters) {
             // recommendation system TODO
             return response()->json(['products' => Product::all()]);
         }
 
         $query = Product::query();
-        foreach($filters as $field => $value) {
+        foreach ($filters as $field => $value) {
             $query->where($field, 'LIKE', "%$value%");
         }
         $products = $query->get();
@@ -48,6 +50,20 @@ class ProductController extends Controller
 
     public function show(Product $product): JsonResponse
     {
+        /** @var User $user */
+        $user = Auth::user();
+        // add product to user's browsing history after responding to the client with the product data
+        // (^ this is done to ensure that response time is not slowed down because of history collection)
+        dispatch(function () use(&$user, &$product) {
+            $user->getBrowsingHistoryService()
+                ->addHistoryToCache(
+                    new BrowsingHistoryEntryDto(
+                        $product->name,
+                        // TODO - implement product image
+                        '',
+                        route('products.show', ['product' => $product->id])
+                    ));
+        })->afterResponse();
         return response()->json(['product' => $product]);
     }
 
